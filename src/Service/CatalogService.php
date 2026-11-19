@@ -22,7 +22,7 @@ final class CatalogService
                 (string) $row['name'],
                 (float) $row['price'],
                 (int) $row['category_id'],
-                (bool) $row['active']
+                $row['active'] ?? null
             );
 
             if (!isset($this->categories[$product->getCategoryId()])) {
@@ -35,6 +35,9 @@ final class CatalogService
 
     private function readJson(string $path): array
     {
+        if (!is_file($path) || !is_readable($path)) {
+            throw new RuntimeException('Не удалось открыть файл каталога: ' . basename($path));
+        }
         $json = file_get_contents($path);
         if ($json === false) {
             throw new RuntimeException('Не удалось прочитать файл: ' . $path);

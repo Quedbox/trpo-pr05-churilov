@@ -30,6 +30,27 @@ check($product->isActive(), 'Товар 1 должен быть активным
 check($product->belongsToCategory(2), 'Товар 1 должен принадлежать категории 2.');
 check($product->isWithinPriceRange(400, 500), 'Цена товара 1 должна входить в диапазон.');
 
+// Сверяем обязательные параметры конструкторов с таблицей задания.
+$file = fopen(__DIR__ . '/../data/class_requirements.csv', 'r');
+fgetcsv($file, 0, ';', '"', '');
+while (($row = fgetcsv($file, 0, ';', '"', '')) !== false) {
+    [$class, $property, $type, $required] = $row;
+    $found = false;
+    $constructor = (new ReflectionClass($class))->getConstructor();
+    foreach ($constructor->getParameters() as $parameter) {
+        if ($parameter->getName() === $property) {
+            $found = (string) $parameter->getType() === $type
+                && $parameter->isOptional() === ($required !== 'yes');
+            break;
+        }
+    }
+    check($found, "Не совпадает параметр $class::$property.");
+}
+fclose($file);
+
+$withoutStatus = new Product(100, 'Тестовый товар', 50, 1);
+check(!$withoutStatus->hasStatus(), 'Статус товара может отсутствовать.');
+
 $constructorRejectedBadId = false;
 try {
     new Product(0, 'Тестовый товар', 100, 1, true);

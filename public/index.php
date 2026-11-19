@@ -97,9 +97,13 @@ $averagePrice = $products === [] ? null : $catalog->averagePrice($products);
                             <p>Цена: <?= e(number_format($product->getPrice(), 2, ',', ' ')) ?> ₽</p>
                             <p>
                                 Статус:
-                                <span class="<?= $product->isActive() ? 'active' : 'inactive' ?>">
-                                    <?= $product->isActive() ? 'Активен' : 'Неактивен' ?>
-                                </span>
+                                <?php if (!$product->hasStatus()): ?>
+                                    Не указан
+                                <?php else: ?>
+                                    <span class="<?= $product->isActive() ? 'active' : 'inactive' ?>">
+                                        <?= $product->isActive() ? 'Активен' : 'Неактивен' ?>
+                                    </span>
+                                <?php endif; ?>
                             </p>
                             <small>ID: <?= e($product->getId()) ?></small>
                         </article>
